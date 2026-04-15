@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Introduction to nmfkc</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to nmfkc</h1>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>Welcome to the <code>nmfkc</code> package! This vignette provides a
+beginner-friendly introduction to the core function,
+<code>nmfkc()</code>.</p>
+<p><strong>Non-negative Matrix Factorization (NMF)</strong> is a
+technique that decomposes a large data matrix <span class="math inline">\(Y\)</span> into two smaller matrices, <span class="math inline">\(X\)</span> and <span class="math inline">\(B\)</span>: <span class="math display">\[Y \approx
+X B\]</span> The key feature of NMF is that all elements must be
+<strong>non-negative</strong> (<span class="math inline">\(\ge
+0\)</span>). This makes the results intuitive, as the original data can
+be understood as an additive combination of parts.</p>
+<p>In this guide, we will cover:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Basic NMF</strong>: Extracting latent topics using a Movie
+Ratings example.</li>
+<li><strong>Interpretation</strong>: Understanding what the decomposed
+matrices represent.</li>
+<li><strong>Missing Values</strong>: How to handle and predict missing
+data (e.g., for recommendations).</li>
+</ol>
+<hr />
+</div>
+<div id="basic-usage-analyzing-movie-ratings" class="section level2">
+<h2>1. Basic Usage: Analyzing Movie Ratings</h2>
+<p>To understand NMF, let’s imagine a scenario with <strong>5
+Users</strong> rating <strong>4 Movies</strong> on a scale of 1 to
+5.</p>
+<p>First, load the package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(nmfkc)</span></code></pre></div>
+<div id="creating-the-data" class="section level3">
+<h3>Creating the Data</h3>
+<p>We create a rating matrix <code>Y</code>. The dataset contains two
+hidden genres: “Action” (Movies 1 &amp; 2) and “Romance” (Movies 3 &amp;
+4).</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Rows: Users (U1-U5), Cols: Movies (M1-M4)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># U1, U2, U3 prefer Action movies.</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># U4, U5 prefer Romance movies.</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>    <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">2</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>    <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">2</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>    <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">4</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>    <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">5</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co"># Assign names for better interpretation</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="fu">rownames</span>(Y) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;User&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">colnames</span>(Y) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Action1&quot;</span>, <span class="st">&quot;Action2&quot;</span>, <span class="st">&quot;Romance1&quot;</span>, <span class="st">&quot;Romance2&quot;</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co"># Check the data</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="fu">print</span>(Y)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;       Action1 Action2 Romance1 Romance2</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; User1       5       4        1        1</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; User2       4       5        1        2</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; User3       5       5        2        2</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; User4       1       2        5        4</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; User5       1       1        4        5</span></span></code></pre></div>
+</div>
+<div id="running-nmf" class="section level3">
+<h3>Running NMF</h3>
+<p>We use the <code>nmfkc()</code> function to decompose this matrix.
+Since we assume there are 2 genres (Action and Romance), we set
+<strong>rank = 2</strong>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Run NMF with rank = 2</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">nmfkc</span>(Y, <span class="at">rank =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">123</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; Y(5,4)~X(5,2)B(2,4)...0sec</span></span></code></pre></div>
+</div>
+<div id="interpretation" class="section level3">
+<h3>Interpretation</h3>
+<p>NMF decomposes <span class="math inline">\(Y\)</span> into <span class="math inline">\(X\)</span> (Basis) and <span class="math inline">\(B\)</span> (Coefficient). <em>(Note: The order of
+bases may vary depending on the random seed. In this example with
+seed=123, Basis 1 corresponds to Action and Basis 2 to
+Romance.)</em></p>
+<div id="basis-matrix-x-user-preferences" class="section level4">
+<h4>1. Basis Matrix X: User Preferences</h4>
+<p>The matrix <span class="math inline">\(X\)</span> represents
+<strong>“How much each User likes each Genre (Basis).”</strong></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Each column represents a latent factor (Basis)</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>res<span class="sc">$</span>X</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;            Basis1     Basis2</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; User1 0.313397420 0.03671376</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; User2 0.304765794 0.08552167</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; User3 0.333724154 0.12109379</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; User4 0.039553910 0.37804885</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; User5 0.008558722 0.37862193</span></span></code></pre></div>
+<ul>
+<li><strong>Basis1</strong>: High values for <strong>User1, User2, and
+User3</strong> (Action fans).</li>
+<li><strong>Basis2</strong>: High values for <strong>User4 and
+User5</strong> (Romance fans).</li>
+</ul>
+</div>
+<div id="coefficient-matrix-b-movie-genres" class="section level4">
+<h4>2. Coefficient Matrix B: Movie Genres</h4>
+<p>The matrix <span class="math inline">\(B\)</span> represents
+<strong>“Which Genre each Movie belongs to.”</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Each row represents a latent factor</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>res<span class="sc">$</span>B</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;          Action1   Action2  Romance1  Romance2</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Basis1 14.275611 13.907355  1.264821  2.166817</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; Basis2  1.672713  3.159933 11.781222 11.778951</span></span></code></pre></div>
+<ul>
+<li><strong>Basis1</strong>: High weights on <strong>Action1 and
+Action2</strong>.</li>
+<li><strong>Basis2</strong>: High weights on <strong>Romance1 and
+Romance2</strong>.</li>
+</ul>
+<p>As you can see, NMF automatically discovered the hidden structures
+(“Action” vs “Romance”) and user preferences without being explicitly
+told.</p>
+<hr />
+</div>
+</div>
+</div>
+<div id="visualization" class="section level2">
+<h2>2. Visualization</h2>
+<p><code>nmfkc</code> provides tools to visually diagnose your
+model.</p>
+<div id="convergence-plot" class="section level3">
+<h3>Convergence Plot</h3>
+<p>Use the <code>plot()</code> function to check if the error minimized
+properly during iterations.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">plot</span>(res, <span class="at">main =</span> <span class="st">&quot;Convergence Plot&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAHgCAMAAABNUi8GAAAAqFBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZrY6AAA6ADo6AGY6OgA6OmY6OpA6ZmY6ZpA6ZrY6kLY6kNtmAABmADpmOgBmOjpmkLZmkNtmtttmtv+QOgCQOjqQZgCQZjqQkDqQkGaQtpCQttuQ29uQ2/+2ZgC2Zjq2ZpC229u22/+2/7a2///bkDrbtmbbtpDb27bb29vb2//b////tmb/25D/27b//7b//9v///88vkKvAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAQWUlEQVR4nO3da5ubxh2GceRktW7S1l0laWL1mC5tXNOTkCV9/29WZgZ0WC27wPBHDzv370Vre2Wky7oDMyME2QEQlt36BQAvIVBII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII1BII9Br+399k2XZt59u9fxFFrhXsF9nd5vLH+//8fk2r+smCPTK7vs6kIcbvYAm0Gzx+EygX75/R6Apq5JofLzNKzgGWrV5HWieEWjSqjy+/rnaUa2zkMa/f8iyr36/8T9Z/O3v1U8fj5WUPuJ99YeLD/Uj/vp99u6T/6OvH8OjLn7cbKDiBhJf/eR+dXpE/Qr8xr+sql1oE+jxVeQu3IQSJdAnqiLC27//w4f/HY67M1dJcTryhjKrWqo/3638n379uXmE3++5x33jNnX1Y7+BujQ/jjh7hFcH6npuAj29CgJNXFXL8uy323tXReFDcvvWT+HXVTdL/9gHvzf95B4XHnH36fBf1+9ys899SZc/bjbgHvK7TbWTvHyEVwf6H/fDEOj5q+AQn7azUJw6B/9/hd9tVg9Y1hG5XVxdafMHYdwa/tbOFXb947CB8JDit79cbMC7HoOevwoCTdtloM0Q0Kfo/6fexVYP+3jcux0P3OERx7/lWrr+sd/A2eTn/BHe1Sz+4lUQaNouD/HN7/yY8zxQd4wPLZfZVaDN33ItXf+4CbR5mvNHeHWgi98266AXr4JA03Y2SaoCad2DuiPyn/3v3b60+cvP70Gf/PiZPejlelZxliB70Fu/ADmXy0yXY9CzQP2B2WVzvsutA30yBn3y4/An4SHltz8/nZY9EyhjUJxcLtRfzuLPAvXrPfWMaPGTW7T0jwuBXs7in/w4bKB6yAe/HPXx/BHedaDXryIZBHrl+FHnB/e7i3XQ80DLZjmyXsZ0P2vieWYd9PTjegP1OujyYgOH8JRPAz1/FSXroKmrTxb5JfzOf4bzo/vVZaCnI/OXP1WHezejOe3d3GdDv/4UjsZPf9z8Rf9J0o+XGziE57kK9OxV+A+pbnYiy+QI1FB+dSYS+iJQC7kfH4QVeUQhUAvN0mZS0xkbBGriyw/39Uo74hAopBEopBEopBEopBEopBEopBEopBEopBEopPUJdLdy39ZJ7HQv3FbvQItwFvmNLrqB1PQNtE6z4DwyTKJvoNt7H2jJQR6TYA8Kaf0Crb9EU0+XAHM9l5l2q3DpLPrENFgHhTQChbR+gTYXNWAVFBPpFej2vbv6gLtaBqtMmEafQPdrPzfK3VVU+T4tJtFvmem4BspCPaYxZA+6DMd5wF6vMWjhr4f53l32mkM8JtFvFl+Gq2XQJ6bCOiikESikjXxGfQZ0Yhbos2fU939epM0s0FfOByVQdGIW6Ctn1BMoOmEPCmlGgbpR5otn1BMoOjEJ9PD6GfUEik6sAp14c3irlAJl8QlXrANtO5vpmc1lw58Fb5bOHjSzeBrMHYFCGoFCmlGg7qa7YaGeMShi2ARaHE9W7hEos3hcMwk0fCdpv77b9AoUuGL0UWc4yS6/2xAoohjuQQ/ue50EiihGY9A6y92q7Zx6AkUnZrP4cJDfrwkUMXTWQYFnECikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikESikGQW6X2dey9VBCRQdGV1hubnLcevtjgkUndheo75K9W4TvTkkzPQuH5WSS4AjBntQSLMag9a7UMagiGM0i9+twiy+Zf9JoOiIdVBII1BIM16o/9j2AAJFJzaBbt8/hvsh5m0fJREoOrFcZsof3O1k4zeHhFku1Ls1UBbqEcV0D7o83fc4ZnNImNFC/eIxDER3Kw7xiGE0iy+rGfzihT4JFN2wDgppBAppRrN4N0kqOaMe0ewC9SfanZ0ZGrZy1GNzSJhZoGdrobGbQ8LMAt3e+0BZqEcU9qCQZhSoG2UuD810KXJzSJjVMlPV6OKx/RsfBIpuWAeFNAKFNOtAOZsJUdiDQhqBQhqBQppRoEXzjU7GoIhid0Z9OFmZQBHF8DtJ+/XdhkARx/Tyi/ndhkARxfbyi/mSQBHFaAxaZ7lbtZ1TT6DoxGwWHw7y+zWBIgbroJBGoJBGoJBGoJBGoJBGoJBGoJBGoJBGoJBGoJBGoJBGoJA230C5hGMSZhtoNsZGIG+ugWajbAXyCBTSCBTS5hooY9BEzDZQZvFpmG+gSAKBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQprRNerdJcDLLGu7vjKBoiO7QIu7zel2ClGbQ8LMAq3T9JlGbg4JMwt0e+8DLblGPWKwB4U0o0Cr+VG2PDTTpcjNIWFDAs2rvWKZtZRXqxpdPL7wKAJFJwMCzf1RO9wr1v55kbb+gTYrR23Tn5GfF2nrH2hzI862u3B6eTUE3a+bm8bHPC/SNuAQH25zuL1/YRDq5u65myUxSUKcIZOk7X21a6ymQK38Trb0j2CZCVGMlpk+NmNUFuoRxSRQ9qAYy4BA/eTnpTOVzsagzYxq+PMibUPWQTusLzGLxziGrIO+/BnSyM+LtA1fqJ/oeZG2IQv1r37GyRn1GMuAMWjZOrBstJ9Rnx31epVI1pBDfPbaLJ7zQTEWzqiHNM6ohzSjQzxn1GMcg/egr5wOyhn1GMXwQ3zOGfWwNzxQzqjHBIYH+uIZ9a8+ikDRyeBA+dIcpjB8Ft+yfjT28yJtXH4R0noGult93H33wreRGkVzKihjUETpHehDl0CLxWM9SCVQROl7iC9O5yO1z+LDFz3262qYSqCIMmCS9PoetDnJLr/bECii2H2r08mXBIooNrP4Jsvdqm0gQKDoZMAkaXUahrZ+fa6oz7rfrwkUMaL2oN0+7Yx7XqQtKtBy+KdJkwfK16DmaUig/iAf90nn5IFmN3hOjGDwtzqLly5vN+LzjiO7xZNiBMMvYJtH7UMJFJ0kcglwAp2r4VcWafu+5sjPOxLGoDM1aAzqL2wzqzEos/i56r1Q3+VkkTGfF2njhGVII1BIM7nLx5jPi7QNniQVr16EcZznRdqGL9TPa5kJM5XIQj3mij0opDEGhTRm8ZDGOiikESikESikESikESikESikESikESikESikESikESikESikESikGQW6X7/y1WQCRSdGV1huLm3bertjAkUntteobz/vnkDRiUmgzdeWDu3fXCJQdMIeFNKsxqD1LpQxKOIYzeJfvSUygaIT1kEhjUAhzSjQPMuWfrG+7cvz4oFyuVsVRpOkauyZZ0t/Z7oRNjc5Lhguw26ZKVwjfJbLTNxyQYfdQn1Yop/lQj2B6mAP+gwC1WE8Bj37TClic5NjDCqDWfyzmMWrYB0U0ggU0oxm8f5edJxRj2h2gfr5+9mZoWErRz02h4SZBVqnOctlJugwC3R77wOd5UI9dLAHhTSjQN0oc3mY7ckikGG1zFQ1unhs/8YHgaIb1kEhjUAhzTrQglk8YrAHhTQChTQChTSjQIvmVFDGoIhidEb94vGwW7mVegJFFMOLh+3XdxsCRRzTyy/mdxsCRRTbyy/mSwJFFKMxaJ3lbtV2Tv3bCpQTsM2YzeLDQX6/TiFQvqVsh3XQeFznwRCBxiNQQwQaj0ANEegIGIPaIdAxMIs3Q6CQRqCQRqCQRqCQRqCQRqCQRqCQRqCQRqCQRqCQRqCQRqCQRqCQRqDT49ynHgh0cpw92geBTo3z73sh0KkRaC8EOjUC7YVAJ8cYtA8CnR6z+B4IFNIIFNIIFNIIFNIIFNIIFNJMAg33OC6zrO3ytQSKjuwC9XeKb65WH7W5xKW9bGoWaJ2mzzRyc2lL/IMns0C39z7QMoVLgFtK/aN79qDiCHTsBx78zT0qy0MzXYrcXNIIdOwHBlWji8dqIt/SZ8L/4n0xBh35gTfZ3FvGLH7cB95kc3irjMagLVOjYZtDwowC/c192+BzwOaQMLNlpsLP4kfZHPp4Y0NW28/i2xt9U/+ISt7apN8w0INvlE+SJvXmlk1tAx1nc+iOQLsg0Jsh0KmfF/0wBp34edETs/jXcUb9bMjnPPEZ9dlRj83BjP6AgPNBUzaDKRVn1Kcs5UDZg85AuoFyRv089B2DTj954Iz6tPUr7gZzKtZB0dktRgQEis7eYqAFs/i3o2+gY4xY2YOiu35j0FFGrASKHvrsE8cZEBAojPQO9Nn6jQItqicLC/WMQVPVe8T67KNtAi0Wj4fdyq3UE2i6+o9Yn3m8SaD79YP/37sNgaas1yx+ykCbk+zyuw2Bopvp96CVfEmg6GjSMWid5W7F147R1bSz+HCQ368JFDFYB4U0AoU0AoU0AoU0AoU0AoU0AoW0mwUKdHKjQEdg+ormu/EZv/SojRPoTDY+45dOoClsfMYvnUBT2PiMXzqBprDxGb90Ak1h4zN+6QSawsZn/NIJNIWNz/ilE2gKG5/xS39jgQJnCBTSCBTSCBTSCBTSCBTSCBTSCBTSCBTSCBTSCBTSCBTSCBTStALdr7Os9T6gY8hb7tIcb3sf7rNr43j3ivFtf+WvpFlm7i6sNhuPeVulAt2vq3+jwvB9LjOrQMtqw+H+EhYKfwdfk0J3K3+p19I9w+iFho1Hva1SgW7v3XvQdnnxeLuVVaDh6uhWr3y/dm9ubpF/teMMDT0YPEO98ai3VSrQYPz/kBvF3R+NAt2+t3rNjl2gZfZQRjf02sbr3w17WwUDza32oFVFVmPQ8t0/V4ajZ8ND/CEE6v8DK0f/lz/b4sC3VS/Q0up9docxq0ALdywLOzoTNlOYsGkXTti9jX/sOgU69G2VC7Q0myMVVZxmgS5s9kA1t/fZ3tv8hztNoIPfVrVAzfaf4ShmFqh/I8JIbnymk8dJDvHD31axQAvDcVx93T+ThsIbYTVVstq/hY2bTZIOx0Aj3latQAur1eiG1R403CXS6hAf8jHaemm3zNS85pi3VSpQq2HWidknSW6Ae7xV5OjMx6BGC/XN7jnilUsFWh+FzdZBLT/qLE0/pM3ttn48Clv8u/uNR72tUoECTxEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBEopBGoEX+9u9L4Yn0JIFBD4aKMiEGghgg0HoEaqeJ0N5+72/irDz5Uf/DdXzKzO0C9XQRqxO09/R7U3V/BXcJ1tzK7NulbRqBGmkB3K3fh2fLd5/AL9ESgRppAw3W1t/cfGZAOQqBGjoE2Nxch0EEI1MjlHvTAlH4gAjVyGoN+PP0BeiNQI8cJkr9LYr54JNBBCNSI7zFv1kHffWYPOgyBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQhqBQtr/ATDqYvzMDdN3AAAAAElFTkSuQmCC" /><!-- --></p>
+</div>
+<div id="visualizing-the-reconstruction" class="section level3">
+<h3>Visualizing the Reconstruction</h3>
+<p>The <code>nmfkc.residual.plot()</code> function allows you to compare
+the <strong>Original Matrix (<span class="math inline">\(Y\)</span>)</strong>, the <strong>Fitted Matrix
+(<span class="math inline">\(XB\)</span>)</strong>, and the
+<strong>Residuals (<span class="math inline">\(E\)</span>)</strong>
+side-by-side.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Visualize Original vs Fitted vs Residuals</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">nmfkc.residual.plot</span>(Y, res)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p>The middle plot (Fitted Matrix) successfully captures the block
+structure of the original data.</p>
+<hr />
+</div>
+</div>
+<div id="handling-missing-values-imputation" class="section level2">
+<h2>3. Handling Missing Values (Imputation)</h2>
+<p>A powerful feature of <code>nmfkc</code> is its robustness to
+<strong>Missing Values (<code>NA</code>)</strong>. This is useful for
+tasks like <strong>Recommendation Systems</strong>, where you want to
+predict how a user would rate a movie they haven’t seen yet.</p>
+<div id="creating-data-with-missing-values" class="section level3">
+<h3>Creating Data with Missing Values</h3>
+<p>Let’s assume <strong>User1</strong> has not seen
+<strong>Action1</strong> yet. We set this value to <code>NA</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>Y_missing <span class="ot">&lt;-</span> Y</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>Y_missing[<span class="st">&quot;User1&quot;</span>, <span class="st">&quot;Action1&quot;</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span> <span class="co"># Introduce missing value</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">print</span>(Y_missing)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt;       Action1 Action2 Romance1 Romance2</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; User1      NA       4        1        1</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; User2       4       5        1        2</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; User3       5       5        2        2</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; User4       1       2        5        4</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; User5       1       1        4        5</span></span></code></pre></div>
+</div>
+<div id="running-nmf-with-nas" class="section level3">
+<h3>Running NMF with NAs</h3>
+<p>Simply pass the matrix with <code>NA</code>s to <code>nmfkc()</code>.
+The algorithm automatically handles them by ignoring the missing entries
+during optimization.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>res_na <span class="ot">&lt;-</span> <span class="fu">nmfkc</span>(Y_missing, <span class="at">rank =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">123</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; Notice: Missing values (NA) in Y were treated as weights=0.</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Y(5,4)~X(5,2)B(2,4)...0sec</span></span></code></pre></div>
+</div>
+<div id="predicting-the-unknown-rating" class="section level3">
+<h3>Predicting the Unknown Rating</h3>
+<p>The fitted model (<span class="math inline">\(X \times B\)</span>)
+provides an estimate for the missing entry.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Extract the predicted value from the fitted matrix XB</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>predicted_rating <span class="ot">&lt;-</span> res_na<span class="sc">$</span>XB[<span class="st">&quot;User1&quot;</span>, <span class="st">&quot;Action1&quot;</span>]</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>actual_rating <span class="ot">&lt;-</span> Y[<span class="st">&quot;User1&quot;</span>, <span class="st">&quot;Action1&quot;</span>] <span class="co"># The original hidden value (5)</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste0</span>(<span class="st">&quot;Actual Rating:    &quot;</span>, actual_rating, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; Actual Rating:    5</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste0</span>(<span class="st">&quot;Predicted Rating: &quot;</span>, <span class="fu">round</span>(predicted_rating, <span class="dv">2</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; Predicted Rating: 3.62</span></span></code></pre></div>
+<p>Because User1 liked other Action movies, the model predicted a
+<strong>reasonably high rating (3.62)</strong> for the missing Action
+movie, closer to the actual rating (5) than to a low rating.</p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>With the <code>nmfkc</code> package, you can easily:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Decompose</strong> complex data into interpretable parts
+(<span class="math inline">\(X\)</span> and <span class="math inline">\(B\)</span>).</li>
+<li><strong>Handle missing values</strong> robustly for imputation and
+prediction.</li>
+<li><strong>Visualize</strong> the results to verify the fit.</li>
+</ol>
+<p>For more advanced topics, such as Time Series Analysis or
+Covariate-assisted NMF, please refer to the other vignettes
+(<code>Topic Modeling</code> and <code>Time Series Analysis</code>).</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+
+## ----load-data----------------------------------------------------------------
+library(nmfkc)
+library(nlme)
+
+data(Orthodont)
+head(Orthodont)
+
+## ----prepare-Y----------------------------------------------------------------
+Y <- matrix(Orthodont$distance, nrow = 4, ncol = 27)
+colnames(Y) <- paste0("S", 1:27)
+rownames(Y) <- paste("Age", c(8, 10, 12, 14))
+Y[, 1:6]
+
+## ----prepare-A----------------------------------------------------------------
+male <- ifelse(Orthodont$Sex[seq(1, 108, 4)] == "Male", 1, 0)
+A <- rbind(intercept = 1, male = male)
+A[, 1:6]
+
+## ----dfU-scan-----------------------------------------------------------------
+scan_result <- nmfre.dfU.scan(1:10/10, Y, A, rank = 1)
+scan_result
+
+## ----fit-nmfre----------------------------------------------------------------
+res <- nmfre(Y, A, rank = 1, df.rate = 0.2, prefix = "Trend")
+
+## ----summary------------------------------------------------------------------
+summary(res)
+
+## ----plot-growth, fig.height=6------------------------------------------------
+age <- c(8, 10, 12, 14)
+
+plot(age, res$XB[, 1], type = "n", ylim = range(Y),
+     xlab = "Age (years)", ylab = "Distance (mm)",
+     main = "Orthodont: NMF-RE Growth Curves")
+
+# Plot observed data points
+for (j in 1:27) {
+  pch_j <- ifelse(male[j] == 1, 4, 1)
+  points(age, Y[, j], pch = pch_j, col = "gray60")
+}
+
+# Plot individual predictions (fixed + random effects)
+for (j in 1:27) {
+  lines(age, res$XB.blup[, j], col = "steelblue", lty = 3, lwd = 0.8)
+}
+
+# Plot population-level fixed effects (two lines: male and female)
+for (j in 1:27) {
+  lines(age, res$XB[, j], col = "red", lwd = 2)
+}
+
+legend("topleft",
+  legend = c("Fixed effect (male/female)", "Fixed + Random (BLUP)",
+             "Male (observed)", "Female (observed)"),
+  lwd = c(2, 1, NA, NA), lty = c(1, 3, NA, NA),
+  pch = c(NA, NA, 4, 1),
+  col = c("red", "steelblue", "gray60", "gray60"),
+  cex = 0.85)
+
+## ----basis-X------------------------------------------------------------------
+cat("Basis X (temporal pattern):\n")
+print(round(res$X, 4))
+
+## ----coef-C-------------------------------------------------------------------
+cat("Coefficient matrix (Theta):\n")
+print(round(res$C, 4))
+
+## ----random-effects, fig.height=4---------------------------------------------
+barplot(res$U[1, ], names.arg = colnames(Y),
+        las = 2, cex.names = 0.7,
+        col = ifelse(male == 1, "steelblue", "salmon"),
+        main = "Random Effects (U) by Subject",
+        ylab = "Random effect value")
+legend("topright", fill = c("steelblue", "salmon"),
+       legend = c("Male", "Female"), cex = 0.85)
+
+## ----convergence--------------------------------------------------------------
+cat("Converged:", res$converged, "\n")
+cat("Iterations:", res$iter, "\n")
+cat("Stop reason:", res$stop.reason, "\n")
+
+## ----plot-convergence, fig.height=4-------------------------------------------
+plot(res$objfunc.iter, type = "l",
+     xlab = "Iteration", ylab = "Objective function",
+     main = "Convergence Trace")
+
+## ----residual-analysis, fig.height=4------------------------------------------
+residuals <- Y - res$XB.blup
+cat("Mean absolute residual (BLUP):", round(mean(abs(residuals)), 4), "\n")
+cat("Mean absolute residual (fixed):", round(mean(abs(Y - res$XB)), 4), "\n")
+
+# Fitted vs Observed
+plot(as.vector(Y), as.vector(res$XB.blup),
+     xlab = "Observed", ylab = "Fitted (BLUP)",
+     main = "Observed vs Fitted", pch = 16, col = "steelblue")
+abline(0, 1, col = "red", lwd = 2)
+
+## ----compare-models-----------------------------------------------------------
+# Standard NMF with covariates (no random effects)
+res_fixed <- nmfkc(Y, A = A, rank = 1)
+
+cat("=== Standard NMF (fixed effects only) ===\n")
+cat("R-squared:", round(1 - sum((Y - res_fixed$XB)^2) / sum((Y - mean(Y))^2), 4), "\n\n")
+
+cat("=== NMF-RE (fixed + random effects) ===\n")
+cat("R-squared (XB):      ", round(res$r.squared.fixed, 4), "\n")
+cat("R-squared (XB+blup): ", round(res$r.squared, 4), "\n")
+cat("ICC:                 ", round(res$ICC, 4), "\n")
+
+## ----separated-inference------------------------------------------------------
+# Fit without bootstrap (fast)
+res_fast <- nmfre(Y, A, rank = 1, df.rate = 0.2, prefix = "Trend",
+                  wild.bootstrap = FALSE)
+
+# Run inference separately
+res_inf <- nmfre.inference(res_fast, Y, A, wild.B = 500)
+res_inf$coefficients[, c("Basis", "Covariate", "Estimate", "SE", "p_value")]
+
+## ----dot-visualization, eval=requireNamespace("DiagrammeR", quietly=TRUE)-----
+dot <- nmfkc.DOT(res_inf, type = "YXA", sig.level = 0.05)
+plot(dot)
+
