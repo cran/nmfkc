@@ -58,7 +58,7 @@ M.simple <- res0$X %*% res0$C
 #     message(sprintf("Processing... %d%% (%d/%d)", round(i/n_iter*100), i, n_iter))
 #   }
 #   p <- grid_params[i, ]
-#   res.cv <- nmf.sem.cv(Y1, Y2, rank = Q0,
+#   res.cv <- nmf.ffb.cv(Y1, Y2, rank = Q0,
 #                        X.init = res0$X,
 #                        X.L2.ortho = 100,
 #                        C1.L1 = p$C1.L1,
@@ -81,7 +81,7 @@ M.simple <- res0$X %*% res0$C
 ## -----------------------------------------------------------------------------
 p <- list(C1.L1 = 10, C2.L1 = 0.6)
 
-res <- nmf.sem(
+res <- nmf.ffb(
   Y1, Y2,
   rank = Q0,
   X.init = res0$X,
@@ -108,7 +108,7 @@ cat("SCcov= ", round(res$SC.cov, 3), "\n")
 cat("MAE=   ", round(res$MAE, 3), "\n")
 
 ## -----------------------------------------------------------------------------
-res.dot <- nmf.sem.DOT(
+res.dot <- nmf.ffb.DOT(
   res,
   weight_scale = 5,
   rankdir = "TB",

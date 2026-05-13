@@ -496,7 +496,7 @@ and the coefficient table with significance stars.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">summary</span>(res)</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; NMF-RE: Y(4,27) = X(4,1) [C(1,2) A + U(1,27)]</span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; Iterations: 2 (converged, epsilon = 1e-05)</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; R-squared: 0.5654 (XB+blup), 0.4167 (XB)</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; R-squared: 0.5739 (XB+blup), 0.4167 (XB)</span></span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; Variance components:</span></span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   sigma2 = 1  (residual)</span></span>
@@ -696,7 +696,7 @@ standard NMF covariate model (no random effects).</p>
 <span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;R-squared (XB):      &quot;</span>, <span class="fu">round</span>(res<span class="sc">$</span>r.squared.fixed, <span class="dv">4</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a><span class="co">#&gt; R-squared (XB):       0.4167</span></span>
 <span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;R-squared (XB+blup): &quot;</span>, <span class="fu">round</span>(res<span class="sc">$</span>r.squared, <span class="dv">4</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt; R-squared (XB+blup):  0.5654</span></span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="co">#&gt; R-squared (XB+blup):  0.5739</span></span>
 <span id="cb14-16"><a href="#cb14-16" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;ICC:                 &quot;</span>, <span class="fu">round</span>(res<span class="sc">$</span>ICC, <span class="dv">4</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb14-17"><a href="#cb14-17" tabindex="-1"></a><span class="co">#&gt; ICC:                  0.0588</span></span></code></pre></div>
 <p>The improvement from fixed-only <span class="math inline">\(R^2\)</span> to BLUP <span class="math inline">\(R^2\)</span> quantifies the contribution of

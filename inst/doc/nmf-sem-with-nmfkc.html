@@ -12,7 +12,7 @@
 
 
 
-<title>NMF-SEM with nmfkc</title>
+<title>NMF-FFB with nmfkc</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -337,18 +337,18 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">NMF-SEM with nmfkc</h1>
+<h1 class="title toc-ignore">NMF-FFB with nmfkc</h1>
 
 
 
 <div id="overview" class="section level2">
 <h2>Overview</h2>
-<p>This vignette demonstrates how to fit the <strong>NMF-SEM</strong>
-(Nonnegative Matrix Factorization–Structural Equation Model) implemented
-in the <strong>nmfkc</strong> package.</p>
-<p>NMF-SEM extends standard nonnegative matrix factorization by
-introducing a <strong>structural equation model in latent
-space</strong>.</p>
+<p>This vignette demonstrates how to fit the <strong>NMF-FFB</strong>
+(Nonnegative Matrix Factorization with Feed-Forward + Feedback; formerly
+NMF-SEM) implemented in the <strong>nmfkc</strong> package.</p>
+<p>NMF-FFB extends standard nonnegative matrix factorization by
+introducing <strong>feed-forward exogenous loading and feedback in
+latent space</strong>.</p>
 <p>Observed endogenous variables <span class="math inline">\(Y_1\)</span> are approximated as</p>
 <p><span class="math display">\[
 Y_1 \approx X (\Theta_1 Y_1 + \Theta_2 Y_2).
@@ -423,7 +423,7 @@ stable, the model implies the equilibrium mapping</p>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="fu">message</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Processing... %d%% (%d/%d)&quot;</span>, <span class="fu">round</span>(i<span class="sc">/</span>n_iter<span class="sc">*</span><span class="dv">100</span>), i, n_iter)) </span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  }  </span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  p <span class="ot">&lt;-</span> grid_params[i, ]</span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  res.cv <span class="ot">&lt;-</span> <span class="fu">nmf.sem.cv</span>(Y1, Y2, <span class="at">rank =</span> Q0,</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  res.cv <span class="ot">&lt;-</span> <span class="fu">nmf.ffb.cv</span>(Y1, Y2, <span class="at">rank =</span> Q0,</span>
 <span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>                       <span class="at">X.init =</span> res0<span class="sc">$</span>X,</span>
 <span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>                       <span class="at">X.L2.ortho =</span> <span class="dv">100</span>,</span>
 <span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>                       <span class="at">C1.L1 =</span> p<span class="sc">$</span>C1.L1,</span>
@@ -443,11 +443,11 @@ stable, the model implies the equilibrium mapping</p>
 <span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#120         0    10   0.5 0.1820908</span></span>
 <span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="fu">print</span>(p <span class="ot">&lt;-</span> f[<span class="dv">1</span>,])</span></code></pre></div>
 </div>
-<div id="nmf-sem-estimation" class="section level2">
-<h2>4. NMF-SEM estimation</h2>
+<div id="nmf-ffb-estimation" class="section level2">
+<h2>4. NMF-FFB estimation</h2>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">C1.L1 =</span> <span class="dv">10</span>, <span class="at">C2.L1 =</span> <span class="fl">0.6</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">nmf.sem</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">nmf.ffb</span>(</span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  Y1, Y2,</span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">rank =</span> Q0,</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">X.init =</span> res0<span class="sc">$</span>X,</span>
@@ -481,7 +481,7 @@ stable, the model implies the equilibrium mapping</p>
 </div>
 <div id="visualization" class="section level2">
 <h2>6. Visualization</h2>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>res.dot <span class="ot">&lt;-</span> <span class="fu">nmf.sem.DOT</span>(</span>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>res.dot <span class="ot">&lt;-</span> <span class="fu">nmf.ffb.DOT</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  res,</span>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">weight_scale =</span> <span class="dv">5</span>,</span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">rankdir =</span> <span class="st">&quot;TB&quot;</span>,</span>

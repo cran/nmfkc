@@ -1,8 +1,8 @@
 ---
-title: "NMF-SEM with nmfkc"
+title: "NMF-FFB with nmfkc"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{NMF-SEM with nmfkc}
+  %\VignetteIndexEntry{NMF-FFB with nmfkc}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteDepends{lavaan}
   %\VignetteEncoding{UTF-8}
@@ -19,12 +19,12 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-This vignette demonstrates how to fit the **NMF-SEM**
-(Nonnegative Matrix Factorization–Structural Equation Model)
-implemented in the **nmfkc** package.
+This vignette demonstrates how to fit the **NMF-FFB**
+(Nonnegative Matrix Factorization with Feed-Forward + Feedback;
+formerly NMF-SEM) implemented in the **nmfkc** package.
 
-NMF-SEM extends standard nonnegative matrix factorization by introducing
-a **structural equation model in latent space**.
+NMF-FFB extends standard nonnegative matrix factorization by introducing
+**feed-forward exogenous loading and feedback in latent space**.
 
 Observed endogenous variables $Y_1$ are approximated as
 
@@ -110,7 +110,7 @@ for(i in 1:n_iter){
     message(sprintf("Processing... %d%% (%d/%d)", round(i/n_iter*100), i, n_iter)) 
   }  
   p <- grid_params[i, ]
-  res.cv <- nmf.sem.cv(Y1, Y2, rank = Q0,
+  res.cv <- nmf.ffb.cv(Y1, Y2, rank = Q0,
                        X.init = res0$X,
                        X.L2.ortho = 100,
                        C1.L1 = p$C1.L1,
@@ -132,12 +132,12 @@ print(p <- f[1,])
 ```
 
 
-## 4. NMF-SEM estimation
+## 4. NMF-FFB estimation
 
 ```{r}
 p <- list(C1.L1 = 10, C2.L1 = 0.6)
 
-res <- nmf.sem(
+res <- nmf.ffb(
   Y1, Y2,
   rank = Q0,
   X.init = res0$X,
@@ -171,7 +171,7 @@ cat("MAE=   ", round(res$MAE, 3), "\n")
 ## 6. Visualization
 
 ```{r}
-res.dot <- nmf.sem.DOT(
+res.dot <- nmf.ffb.DOT(
   res,
   weight_scale = 5,
   rankdir = "TB",
