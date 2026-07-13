@@ -24,14 +24,21 @@ male <- ifelse(Orthodont$Sex[seq(1, 108, 4)] == "Male", 1, 0)
 A <- rbind(intercept = 1, male = male)
 A[, 1:6]
 
-## ----dfU-scan-----------------------------------------------------------------
-scan_result <- nmfre.dfU.scan(1:10/10, Y, A, rank = 1)
-scan_result
-
 ## ----fit-nmfre----------------------------------------------------------------
-res <- nmfre(Y, A, rank = 1, df.rate = 0.2, prefix = "Trend")
+res <- nmfre(Y, A, rank = 1, prefix = "Trend")
 
 ## ----summary------------------------------------------------------------------
+summary(res)
+
+## ----diagnostics--------------------------------------------------------------
+cat("sigma^2 =", round(res$sigma2, 4), "\n")
+cat("tau^2   =", round(res$tau2, 4), "\n")
+cat("lambda  =", round(res$lambda, 5), "\n")
+cat("dfU     =", round(res$dfU, 2),
+    "  dfU/(NQ) =", round(res$dfU.frac, 4), "\n")
+
+## ----inference----------------------------------------------------------------
+res <- nmfre.inference(res, Y, A, wild.B = 1000)
 summary(res)
 
 ## ----plot-growth, fig.height=6------------------------------------------------
@@ -88,9 +95,7 @@ cat("Iterations:", res$iter, "\n")
 cat("Stop reason:", res$stop.reason, "\n")
 
 ## ----plot-convergence, fig.height=4-------------------------------------------
-plot(res$objfunc.iter, type = "l",
-     xlab = "Iteration", ylab = "Objective function",
-     main = "Convergence Trace")
+plot(res, main = "Convergence (marginal NLL)")
 
 ## ----residual-analysis, fig.height=4------------------------------------------
 residuals <- Y - res$XB.blup
@@ -115,16 +120,18 @@ cat("R-squared (XB):      ", round(res$r.squared.fixed, 4), "\n")
 cat("R-squared (XB+blup): ", round(res$r.squared, 4), "\n")
 cat("ICC:                 ", round(res$ICC, 4), "\n")
 
-## ----separated-inference------------------------------------------------------
-# Fit without bootstrap (fast)
-res_fast <- nmfre(Y, A, rank = 1, df.rate = 0.2, prefix = "Trend",
-                  wild.bootstrap = FALSE)
-
-# Run inference separately
-res_inf <- nmfre.inference(res_fast, Y, A, wild.B = 500)
-res_inf$coefficients[, c("Basis", "Covariate", "Estimate", "SE", "p_value")]
+## ----reinference--------------------------------------------------------------
+# coefficient table from the inference object built in Section 2.2
+res$coefficients[, c("Basis", "Covariate", "Estimate", "SE", "p_value")]
 
 ## ----dot-visualization, eval=requireNamespace("DiagrammeR", quietly=TRUE)-----
-dot <- nmfkc.DOT(res_inf, type = "YXA", sig.level = 0.05)
+dot <- nmfkc.DOT(res, type = "YXA", sig.level = 0.05)
 plot(dot)
+
+## ----nonneg-------------------------------------------------------------------
+res_nn <- nmfre(Y, A, rank = 1, prefix = "Trend", C.signed = FALSE)
+res_nn <- nmfre.inference(res_nn, Y, A, wild.B = 500)
+cat("All Theta >= 0 :", all(res_nn$C >= 0), "\n")
+cat("P-value side   :", res_nn$C.p.side, "\n")
+res_nn$coefficients[, c("Basis", "Covariate", "Estimate", "SE", "p_value")]
 

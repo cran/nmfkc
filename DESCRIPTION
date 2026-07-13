@@ -1,8 +1,8 @@
 Package: nmfkc
 Type: Package
 Title: Non-Negative Matrix Factorization with Kernel Covariates
-Version: 0.8.2
-Date: 2026-06-09
+Version: 0.8.8
+Date: 2026-07-14
 Authors@R: 
     person("Kenichi", "Satoh",
            email = "kenichi-satoh@biwako.shiga-u.ac.jp",
@@ -34,13 +34,14 @@ Language: en-US
 ByteCompile: true
 VignetteBuilder: knitr
 Suggests: knitr, rmarkdown, testthat (>= 3.0.0), mclust,
-        palmerpenguins, quanteda, vars, DiagrammeR, MASS, nlme, lavaan
+        palmerpenguins, quanteda, vars, DiagrammeR, MASS, nlme, lavaan,
+        ade4
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2026-06-14 11:41:16 UTC; ksato
+Packaged: 2026-07-13 23:17:29 UTC; ksato
 Author: Kenichi Satoh [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-4436-9347>)
 Repository: CRAN
-Date/Publication: 2026-06-14 13:50:02 UTC
+Date/Publication: 2026-07-13 23:50:02 UTC
