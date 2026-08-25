@@ -12,9 +12,7 @@ nmf.rrr.kernel.beta.cv(
   V = NULL,
   beta = NULL,
   plot = TRUE,
-  ...,
-  rank = NULL,
-  rank.encoder = NULL
+  ...
 )
 }
 \arguments{
@@ -38,11 +36,16 @@ determined via \code{\link{nmfkc.kernel.beta.nearest.med}}.}
 \item{...}{Additional arguments. Kernel-specific args (\code{kernel}, \code{degree})
 are passed to \code{\link{nmfkc.kernel}}; all others
 (\code{div}, \code{seed}, \code{shuffle}, \code{epsilon}, \code{maxit}, etc.)
-are passed to \code{\link{nmfae.cv}}.
+are passed to \code{\link{nmfae.cv}}. Also accepts \code{cores} to evaluate
+the candidate \code{beta} values in parallel (default
+\code{getOption("mc.cores", 1L)}); each inner CV then runs sequentially, and
+because results are gathered in order the selected \code{beta} is identical
+for any \code{cores}.
 For backward compatibility, \code{Q} and \code{R} are accepted as aliases for
-\code{rank} and \code{rank.encoder}.}
+\code{rank} and \code{rank.encoder}.
 
-\item{rank, rank.encoder}{Deprecated aliases of \code{rank1} / \code{rank2}.}
+Rank aliases accepted here for backward compatibility:
+\code{Q} for \code{rank1}, \code{R} for \code{rank2}.}
 }
 \value{
 A list with components:
@@ -67,6 +70,6 @@ res$beta
 
 }
 \seealso{
-\code{\link{nmfae.cv}}, \code{\link{nmfkc.kernel}},
+\code{\link{nmf.rrr.cv}}, \code{\link{nmfkc.kernel}},
 \code{\link{nmfkc.kernel.beta.cv}}
 }

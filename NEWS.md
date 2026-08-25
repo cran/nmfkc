@@ -1,3 +1,135 @@
+# nmfkc 0.9.6 (2026-08-23)
+
+## Check time only -- no change to any computed value
+
+CRAN's incoming pretest still reported "Overall checktime 11 min > 10 min" for
+0.9.5, almost all of it `checking tests ... [442s]`.  Uwe Ligges suggested
+running the less important tests conditionally on an environment variable set
+only on the maintainer's machine, and that is what this release does.
+
+- **`tests/testthat/test-cran-smoke.R`** is new and is the only test file that
+  runs by default.  It exercises every exported fitter and its S3 methods on
+  toy data (6 x 20 matrices) in under a second: 35 assertions, no bootstrap,
+  no cross-validation, no restarts.
+- Every other block -- 145 of them -- now begins with `skip_unless_full()`,
+  defined in `tests/testthat/helper-nmfkc.R`.  The full suite runs when
+  `NMFKC_FULL_TESTS` is set:
+
+  ```r
+  Sys.setenv(NMFKC_FULL_TESTS = "true"); devtools::test()
+  ```
+
+  3173 assertions, 144 seconds locally, and it is what the maintainer and CI
+  run before every release.  Nothing was deleted: the regression tests for the
+  always-zero refit p-values, the RNG-stream pollution, the convergence
+  tolerances and the identification conditions are all still there.
+- The earlier `skip_on_cran()` guards are gone, subsumed by the new one.
+
+Measured: 1.7 s in CRAN mode against 144 s in full mode, both with zero
+failures.
+
+# nmfkc 0.9.5 (2026-08-20)
+
+## Check time only -- no change to any computed value
+
+CRAN's incoming pretest rejected 0.9.4 for its overall check time (48 minutes
+on the pretest Windows machine against a 10-minute budget; 34 of those were
+the tests and 11 the vignettes).
+
+- The expensive regression tests -- the refit-bootstrap blocks and the latent
+  VAR bootstrap blocks -- now carry `skip_on_cran()` and keep running
+  locally at full size.  Each has a CRAN-sized copy (smaller fixture, fewer
+  replicates), so the defects they guard, in particular the always-zero
+  refit p-values fixed in 0.9.4, remain covered on CRAN itself.
+- The timeseries vignette sweeps six candidate lag orders instead of
+  fourteen (the winner, D = 12, is unchanged) and uses `wild.B = 50` in its
+  inference example.
+- Five vignettes leave the package tarball and remain on the website
+  (<https://ksatohds.github.io/nmfkc/articles/>): classification,
+  network-community, rank-selection, timeseries and topic-modeling.  The
+  tarball keeps introduction, nmf-rrr, nmf-re and nmf-sem.
+
+# nmfkc 0.9.4
+
+### **Breaking: the `nmf.rrr` family drops the `rank` / `rank.encoder` aliases**
+
+- `rank` and `rank.encoder` are removed from `nmf.rrr()`, `nmf.rrr.cv()`,
+  `nmf.rrr.ecv()`, `nmf.rrr.kernel.beta.cv()`, `nmf.rrr.rank()`,
+  `nmf.rrr.signed()`, `nmf.rrr.signed.ecv()` and `nmf.rrr.signed.rank()`.
+  Use **`rank1`** and **`rank2`**. `Q` and `R` still work, via `...`.
+- They were declared as formals *after* `...`, which put deprecated names in
+  every signature and made the help page read as though they were worth using.
+  They cannot simply move into `...`: `rank` is a prefix of both `rank1` and
+  `rank2`, so R's partial matching turns `nmf.rrr(Y, rank = 3)` into
+  "argument matches multiple formal arguments" before the body runs. Declaring
+  them after `...` was the only way to suppress that -- so the choice was to
+  keep the odd signature or drop the aliases, and they are dropped.
+- `rank.encoder` is not a prefix of any remaining formal, so it would otherwise
+  have been swallowed by `...` and **silently ignored**. Passing either name
+  now raises a clear error naming its replacement.
+
+### **Breaking: `nmf.rrr()` renames `B.prob` / `B.cluster` to `B1.prob` / `B1.cluster`**
+
+- `nmf.rrr()` now returns **two** score matrices instead of one. `B1 = C X2 Y2`
+  (Q x N) is the decoder-side score, with \eqn{\widehat Y_1 = X_1 B_1}; the new
+  `B2 = X2 Y2` (R x N) is the encoder-side score, i.e. `B1` before the `C` map.
+  Each gets column-normalized memberships and hard labels: **`B1.prob`,
+  `B1.cluster`, `B2.prob`, `B2.cluster`**.
+- **`B.prob` and `B.cluster` are gone**; they shipped in 0.8.8, so code reading
+  them must be updated to `B1.prob` / `B1.cluster`. The name `B` alone became
+  ambiguous once both scores were exposed, and keeping it as an alias would
+  reintroduce exactly the one-object-two-names problem this release removes
+  elsewhere. The undocumented `B` component added during development is also
+  removed.
+- **`H` is retained but deprecated.** It is identical to `B1`. Package-internal
+  code now reads `B1` (through an accessor that still falls back to `H`, so
+  objects saved by earlier releases keep working). Use `B1` in new code.
+
+### **Breaking: `nmfkc()` stops computing criteria nothing consumed**
+
+- **`detail` now defaults to `"fast"`.** The only thing `"full"` adds is the
+  sample-clustering criteria `silhouette`, `CPCC` and `dist.cor`, which cost
+  \eqn{O(N^2)} (two distance matrices plus a cophenetic correlation) and had no
+  consumer: they left rank selection, `summary.nmfkc()` never printed them, and
+  `nmf.cluster.criteria()` recomputes them from the fits it is given. At
+  \eqn{N=2000} they were 26x the cost of the rest of the call; over a
+  500-replicate bootstrap, 83s against 9s. They are **absent** from
+  `fit$criterion` unless `detail = "full"` is asked for -- absent rather than
+  `NA`, because `CPCC` is legitimately `NA` at \eqn{Q=1} and the two meanings
+  must not collide.
+- **`criterion$B.prob.max.mean` is removed.** Nothing in the package read it
+  except the summary line that printed it, and that line is now the
+  effective-rank index (below).
+- The bootstrap re-fits in `nmfkc.inference(method = "refit")` and
+  `nmfkc.ar.latent.inference()` pass `detail = "fast"` explicitly, so this
+  holds even if the default moves back.
+
+### **`summary()` reports a \eqn{[0,1]} factor diagnostic**
+
+- `criterion$effective.rank.index` is new on a single fit: the broken-stick
+  correction \eqn{(\hat r_Q-E_Q)/(Q-E_Q)}, \eqn{E_Q=\exp(H_Q-1)}, that
+  `nmfkc.rank()` already plotted. It is verified to agree bit-for-bit with the
+  `nmfkc.rank()` column at matched settings, and both now call one helper.
+- `summary()` prints it as `Factor variance share` in place of the old
+  `Clustering Crispness`. Unlike the crispness (range \eqn{[1/Q,1]}, monotone
+  in \eqn{Q}) this is a genuine \eqn{[0,1]} index. Read it as **how evenly the
+  across-sample coefficient variance is shared**, which is not the same as how
+  useful the factors are: two duplicated factors split the variance evenly and
+  score near 1.
+
+### **`nmfre()` correctness fixes (identification + signed warm start)**
+- Removed the row-centering of the random-effect matrix `U` inside the U-step.
+  The (U, Theta) indeterminacy is `U -> U + Delta A`, `Theta -> Theta - Delta`,
+  so the identification condition is `U A' = 0`, not `U 1 = 0`; the alternating
+  fixed point satisfies `U A' = 0` automatically, and imposing row-centering on
+  top broke it whenever `1'` is not in the row space of `A`. (Verified: after
+  the fix `||U A'||` is ~1e-6 at convergence.)
+- The initialization no longer clips `C.init` to `+eps` when
+  `C.signed = TRUE`: a warm-start `C.init` may legitimately carry negative
+  entries (e.g. a full-refit bootstrap restarting from the previous estimate),
+  and the unconditional `pmax()` destroyed their sign at every refit. Clipping
+  now applies only in the non-negative mode, mirroring the in-loop update rule.
+
 # nmfkc 0.8.8
 
 ### **Removed the `B.L1` penalty (and its `gamma` alias)**

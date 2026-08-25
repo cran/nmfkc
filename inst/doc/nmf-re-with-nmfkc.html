@@ -427,7 +427,7 @@ package: orthodontic distance measurements for 27 children at ages 8,
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(nlme)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;nlme&#39; was built under R version 4.4.3</span></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">data</span>(Orthodont)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">data</span>(Orthodont, <span class="at">package =</span> <span class="st">&quot;nlme&quot;</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">head</span>(Orthodont)</span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Grouped Data: distance ~ age | Subject</span></span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt;   distance age Subject  Sex</span></span>
@@ -486,7 +486,7 @@ in a separate inference step (Section 2.2), mirroring the
 <code>nmfkc()</code> / <code>nmfkc.inference()</code> split.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">summary</span>(res)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; NMF-RE: Y(4,27) = X(4,1) [C(1,2) A + U(1,27)]</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Iterations: 41 (converged, epsilon = 1e-05)</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Iterations: 41 / 5000 (converged)  epsilon = 1e-05  outer 20 / 500</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; R-squared (cor^2):    0.8246 (XB+blup), 0.4167 (XB)</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; R-squared (uncentered):     0.9974 (XB+blup), 0.9915 (XB)</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; R-squared (centered): 0.7594 (XB+blup), 0.2134 (XB)</span></span>
@@ -545,7 +545,7 @@ so <code>summary()</code> now prints the coefficient table.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">nmfre.inference</span>(res, Y, A, <span class="at">wild.B =</span> <span class="dv">1000</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">summary</span>(res)</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; NMF-RE: Y(4,27) = X(4,1) [C(1,2) A + U(1,27)]</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Iterations: 41 (converged, epsilon = 1e-05)</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Iterations: 41 / 5000 (converged)  epsilon = 1e-05  outer 20 / 500</span></span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; R-squared (cor^2):    0.8246 (XB+blup), 0.4167 (XB)</span></span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; R-squared (uncentered):     0.9974 (XB+blup), 0.9915 (XB)</span></span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; R-squared (centered): 0.7594 (XB+blup), 0.2134 (XB)</span></span>
@@ -674,6 +674,11 @@ average.</li>
 <p><span class="math inline">\(U\)</span> captures individual
 deviations. Subjects with positive <span class="math inline">\(U\)</span> values grow faster than the population
 average; negative values indicate slower growth.</p>
+<p>At convergence the random effects satisfy the identification
+condition <span class="math inline">\(U A^\top = 0\)</span>: they are
+orthogonal to the covariate rows, so <span class="math inline">\(U\)</span> contains exactly the individual
+variation that the covariates cannot explain. (When <span class="math inline">\(A\)</span> includes an intercept row, as here,
+this implies the familiar sum-to-zero centering of each row of <span class="math inline">\(U\)</span> across subjects.)</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">barplot</span>(res<span class="sc">$</span>U[<span class="dv">1</span>, ], <span class="at">names.arg =</span> <span class="fu">colnames</span>(Y),</span>
 <span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>        <span class="at">las =</span> <span class="dv">2</span>, <span class="at">cex.names =</span> <span class="fl">0.7</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>        <span class="at">col =</span> <span class="fu">ifelse</span>(male <span class="sc">==</span> <span class="dv">1</span>, <span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;salmon&quot;</span>),</span>
@@ -788,8 +793,8 @@ positive-part multiplicative rule and inference switches to a one-sided
 <span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="co">#&gt; P-value side   : one.sided</span></span>
 <span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>res_nn<span class="sc">$</span>coefficients[, <span class="fu">c</span>(<span class="st">&quot;Basis&quot;</span>, <span class="st">&quot;Covariate&quot;</span>, <span class="st">&quot;Estimate&quot;</span>, <span class="st">&quot;SE&quot;</span>, <span class="st">&quot;p_value&quot;</span>)]</span>
 <span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="co">#&gt;    Basis Covariate  Estimate       SE       p_value</span></span>
-<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; 1 Trend1 intercept 90.433728 2.460764 5.757441e-296</span></span>
-<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; 2 Trend1      male  9.543617 3.043123  8.559770e-04</span></span></code></pre></div>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co">#&gt; 1 Trend1 intercept 90.431326 2.460762 5.959241e-296</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; 2 Trend1      male  9.543432 3.043119  8.561451e-04</span></span></code></pre></div>
 <p>For the Orthodont data the male effect is positive, so the sign-free
 and non-negative fits agree on its direction; the difference matters
 when an effect is genuinely negative (the non-negative variant clips it

@@ -4,15 +4,7 @@
 \alias{nmf.rrr.signed.ecv}
 \title{Element-wise Cross-Validation for Signed-Bottleneck NMF-AE}
 \usage{
-nmf.rrr.signed.ecv(
-  Y1,
-  Y2 = Y1,
-  rank1 = 1:2,
-  rank2 = NULL,
-  ...,
-  rank = NULL,
-  rank.encoder = NULL
-)
+nmf.rrr.signed.ecv(Y1, Y2 = Y1, rank1 = 1:2, rank2 = NULL, ...)
 }
 \arguments{
 \item{Y1}{Output matrix (P1 x N).}
@@ -28,15 +20,20 @@ nmf.rrr.signed.ecv(
 \describe{
 \item{\code{nfolds} / \code{div}}{Number of folds.  Default 5.}
 \item{\code{seed}}{RNG seed for fold assignment.  Default 123.}
+\item{\code{cores}}{Evaluate the \eqn{(Q,R)}-pair \eqn{\times} fold grid
+in parallel.  Default \code{getOption("mc.cores", 1L)} (PSOCK on
+Windows, forking elsewhere).  Each task is an independent self-seeded
+fit and results are aggregated in order, so the returned object is
+identical for any \code{cores}.}
 \item{\code{nstart}}{Number of random restarts per fit.  Default 1.
 Signed models have more local minima (the bottleneck can carry
 both signs), so \code{nstart >= 10} is recommended for
 reproducible rank selection.}
 \item{Other args}{\code{epsilon}, \code{maxit}, \code{warm.start},
 etc.\ are passed to \code{\link{nmfae.signed}}.}
-}}
-
-\item{rank, rank.encoder}{Deprecated aliases of \code{rank1} / \code{rank2}.}
+}
+Rank aliases accepted here for backward compatibility:
+\code{Q} for \code{rank1}, \code{R} for \code{rank2}.}
 }
 \value{
 An object of class \code{c("nmfae.signed.ecv", "nmfae.ecv")} with
@@ -62,5 +59,5 @@ semi-nonnegative matrix factorizations. \emph{IEEE Transactions on
 Pattern Analysis and Machine Intelligence}, 32(1), 45--55.
 }
 \seealso{
-\code{\link{nmfae.signed}}, \code{\link{nmfae.ecv}}
+\code{\link{nmf.rrr.signed}}, \code{\link{nmf.rrr.ecv}}
 }

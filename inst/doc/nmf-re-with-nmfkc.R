@@ -1,16 +1,27 @@
 ## ----setup, include=FALSE-----------------------------------------------------
+# Every chunk below needs Orthodont from nlme.  nlme ships with R, so
+# %\VignetteDepends{nlme} never triggers the skip path -- the package is always
+# "installed" -- yet under _R_CHECK_DEPENDS_ONLY_=true (CRAN's noSuggests
+# flavour) it cannot be loaded.  Gate on requireNamespace() instead, the way
+# nmf-rrr-with-nmfkc.Rmd gates on ade4.
+has_nlme <- requireNamespace("nlme", quietly = TRUE)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 5
+  fig.height = 5,
+  eval = has_nlme
 )
+
+## ----no-nlme, eval = !has_nlme, echo = FALSE, results = "asis"----------------
+# cat("> **Note.** This vignette needs the `nlme` package for its `Orthodont`",
+#     "data, which is not available here, so the code below is shown but not run.\n")
 
 ## ----load-data----------------------------------------------------------------
 library(nmfkc)
 library(nlme)
 
-data(Orthodont)
+data(Orthodont, package = "nlme")
 head(Orthodont)
 
 ## ----prepare-Y----------------------------------------------------------------

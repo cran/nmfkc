@@ -4,15 +4,7 @@
 \alias{nmf.rrr.ecv}
 \title{Element-wise Cross-Validation for nmfae (Wold's CV)}
 \usage{
-nmf.rrr.ecv(
-  Y1,
-  Y2 = Y1,
-  rank1 = 1:2,
-  rank2 = NULL,
-  ...,
-  rank = NULL,
-  rank.encoder = NULL
-)
+nmf.rrr.ecv(Y1, Y2 = Y1, rank1 = 1:2, rank2 = NULL, ...)
 }
 \arguments{
 \item{Y1}{Output matrix \eqn{Y_1} (P1 x N).}
@@ -26,13 +18,16 @@ which sets \code{rank2 = rank1} and evaluates element-wise pairs.}
 
 \item{...}{Additional arguments passed to \code{\link{nmfae}} (e.g., \code{epsilon}, \code{maxit}).
 Also accepts: \code{nfolds} (number of folds, default 5; \code{div} also accepted),
-\code{seed} (integer seed, default 123).
+\code{seed} (integer seed, default 123), and \code{cores} (evaluate the
+\eqn{(Q,R)}-pair \eqn{\times} fold grid in parallel; default
+\code{getOption("mc.cores", 1L)}, PSOCK on Windows / forking elsewhere).
+Each task is an independent self-seeded fit and results are aggregated in
+order, so the returned object is identical for any \code{cores}.
 For backward compatibility, \code{Q} and \code{R} are accepted as aliases for
-\code{rank} and \code{rank.encoder}.}
+\code{rank} and \code{rank.encoder}.
 
-\item{rank, rank.encoder}{Deprecated aliases of \code{rank1} / \code{rank2}
-(\code{Q} / \code{R} also accepted via \code{...}).
-When explicitly specified, all combinations with \code{rank} are evaluated.}
+Rank aliases accepted here for backward compatibility:
+\code{Q} for \code{rank1}, \code{R} for \code{rank2}.}
 }
 \value{
 A list with components:
@@ -64,13 +59,14 @@ future versions; details are to be described in an upcoming paper.
 \examples{
 Y <- t(iris[1:30, 1:4])
 # Default: rank2=NULL -> paired rank1=rank2
-res <- nmf.rrr.ecv(Y, rank1 = 1:3, nfolds = 3, maxit = 500)
+res <- nmf.rrr.ecv(Y, rank1 = 1:2, nfolds = 3, maxit = 200)
 res$sigma
-# Explicit rank.encoder: full grid
-res2 <- nmf.rrr.ecv(Y, rank1 = 1:3, rank2 = 1:3, nfolds = 3, maxit = 500)
+# Explicit rank2: full grid (kept small so the example stays under CRAN's
+# 10s budget -- a real sweep would use wider ranges and a larger maxit)
+res2 <- nmf.rrr.ecv(Y, rank1 = 1:2, rank2 = 1:2, nfolds = 3, maxit = 200)
 res2$sigma
 
 }
 \seealso{
-\code{\link{nmfae}}, \code{\link{nmfkc.ecv}}
+\code{\link{nmf.rrr}}, \code{\link{nmfkc.ecv}}
 }

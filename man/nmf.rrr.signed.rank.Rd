@@ -10,8 +10,7 @@ nmf.rrr.signed.rank(
   rank1 = 1:5,
   detail = c("full", "fast"),
   plot = TRUE,
-  ...,
-  rank = NULL
+  ...
 )
 }
 \arguments{
@@ -29,9 +28,13 @@ eff.rank only, and recommends the R-squared elbow).}
 \item{plot}{Logical; draw the diagnostics plot (default \code{TRUE}).}
 
 \item{...}{Passed on to \code{\link{nmfae.signed}} and
-\code{\link{nmfae.signed.ecv}}.}
-
-\item{rank}{Deprecated alias of \code{rank1}.}
+\code{\link{nmfae.signed.ecv}}. Also accepts \code{cores} to evaluate the
+rank sweep (and the element-wise CV) in parallel; default
+\code{getOption("mc.cores", 1L)}. Each rank is an independent self-seeded
+fit and results are gathered in order, so the output is identical for any
+\code{cores}.
+Rank aliases accepted here for backward compatibility:
+\code{Q} for \code{rank1}.}
 }
 \value{
 A list with \code{rank.best} and \code{criteria}
@@ -55,6 +58,6 @@ components in factor and principal components models.
 \emph{Technometrics}, 20(4), 397--405. (\code{sigma.ecv})
 }
 \seealso{
-\code{\link{nmfae.signed}}, \code{\link{nmfae.signed.ecv}},
+\code{\link{nmf.rrr.signed}}, \code{\link{nmf.rrr.signed.ecv}},
 \code{\link{nmfkc.rank}}
 }
